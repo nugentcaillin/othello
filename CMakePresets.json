@@ -1,0 +1,67 @@
+{
+    "version": 4,
+    "configurePresets": [
+        {
+            "name": "base",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "BUILD_TESTING": "OFF",
+                "ENABLE_GUI": "OFF",
+                "BUILD_EXECUTABLE": "OFF"
+            }
+        },
+        {
+            "name": "development",
+            "inherits": "base",
+            "displayName": "Build and run tests, executable with GUI",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "BUILD_TESTING": "ON",
+                "ENABLE_GUI": "ON",
+                "BUILD_EXECUTABLE": "ON"
+            }
+        },
+        {
+            "name": "build-gui",
+            "inherits": "base",
+            "displayName": "Build executable with GUI",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "BUILD_TESTING": "OFF",
+                "ENABLE_GUI": "ON",
+                "BUILD_EXECUTABLE": "ON"
+            }
+        },
+        {
+            "name": "build-cli",
+            "inherits": "base",
+            "displayName": "Build executable with CLI",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "BUILD_TESTING": "OFF",
+                "ENABLE_GUI": "OFF",
+                "BUILD_EXECUTABLE": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "build-all",
+            "configurePreset": "development",
+            "jobs": 10,
+            "cleanFirst": false
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "test",
+            "description": "run tests",
+            "displayName": "build and run tests",
+            "configurePreset": "development",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ]
+}

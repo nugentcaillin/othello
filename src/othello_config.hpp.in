@@ -1,0 +1,2 @@
+#define Othello_VERSION_MAJOR @Othello_VERSION_MAJOR@
+#define Othello_VERSION_MINOR @Othello_VERSION_MINOR@
