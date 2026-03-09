@@ -28,22 +28,40 @@ target_include_directories(
         "${PROJECT_BINARY_DIR}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
+list(APPEND EXECUTABLE_LIBRARIES Core)
+list(APPEND TESTING_LIBRARIES Core)
 
-list(APPEND LIBRARIES Core)
+if (ENABLE_GUI)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+    add_subdirectory(extern/SDL EXCLUDE_FROM_ALL)
+    list(APPEND EXECUTABLE_LIBRARIES SDL3::SDL3)
+endif()
 
 # Training executable
 if(BUILD_EXECUTABLE)
     add_executable(Othello 
+        extern/imgui/backends/imgui_impl_sdl3.cpp
+        extern/imgui/backends/imgui_impl_sdlgpu3.cpp
+        extern/imgui/imgui_demo.cpp
+        extern/imgui/imgui_draw.cpp
+        extern/imgui/imgui_tables.cpp
+        extern/imgui/imgui_widgets.cpp
+        extern/imgui/imgui.cpp
         src/main.cpp
     )
    target_link_libraries(
        Othello
-       ${LIBRARIES}
+       ${EXECUTABLE_LIBRARIES}
    )
+
+
     target_include_directories(
         Othello 
         PUBLIC 
         "${PROJECT_BINARY_DIR}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/extern/imgui"
+        "${CMAKE_CURRENT_SOURCE_DIR}/extern/imgui/backends"
     )
 endif()
 
@@ -66,7 +84,7 @@ if(BUILD_TESTING)
     )
     target_link_libraries(
         hello_test
-        ${LIBRARIES}
+        ${TESTING_LIBRARIES}
         GTest::gtest_main
     )
     include(GoogleTest)
