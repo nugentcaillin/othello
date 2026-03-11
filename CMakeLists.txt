@@ -42,7 +42,6 @@ endif()
 if(BUILD_EXECUTABLE)
     add_executable(Othello 
         extern/imgui/backends/imgui_impl_sdl3.cpp
-        extern/imgui/backends/imgui_impl_sdlgpu3.cpp
         extern/imgui/backends/imgui_impl_sdlrenderer3.cpp
         extern/imgui/imgui_demo.cpp
         extern/imgui/imgui_draw.cpp
