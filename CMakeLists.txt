@@ -15,7 +15,7 @@ option(BUILD_EXECUTABLE "Build executable that trains model" ON)
 option(BUILD_TESTING "Build tests" OFF)
 
 # add all the options we want in our hpp file eg. version num, gui switch
-configure_file(src/othello_config.hpp.in othello_config.hpp)
+configure_file(src/app/othello_config.hpp.in othello_config.hpp)
 
 
 # Core Library
@@ -48,7 +48,8 @@ if(BUILD_EXECUTABLE)
         extern/imgui/imgui_tables.cpp
         extern/imgui/imgui_widgets.cpp
         extern/imgui/imgui.cpp
-        src/main.cpp
+        src/app/main.cpp
+        src/app/display/GuiTrainDisplay.cpp
     )
    target_link_libraries(
        Othello
