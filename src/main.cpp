@@ -1,6 +1,6 @@
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
-#include <imgui_impl_sdlgpu3.h>
+#include <imgui_impl_sdlrenderer3.h>
 #include <string>
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -15,14 +15,10 @@ void check_sdl_error(bool success, std::string sdl_func)
     }
 }
 
-
-
-
-
 int main()
 {
     // setup SDL
-    bool sdl_init_success { SDL_Init(SDL_INIT_VIDEO) };
+    bool sdl_init_success { SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) };
     check_sdl_error(sdl_init_success, "SDL_Init");
 
 
@@ -35,31 +31,30 @@ int main()
         title.c_str()
         , width
         , height
-        , SDL_WINDOW_RESIZABLE
+        , SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY
     );
     check_sdl_error(window, "SDL_CreateWindow");
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    SDL_ShowWindow(window);
 
 
-    // create GPU device
-    SDL_GPUDevice* device = SDL_CreateGPUDevice(
-        SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL | SDL_GPU_SHADERFORMAT_METALLIB
-        , true
-        , NULL
-    );
-    check_sdl_error(device, "SDL_CreateGPUDevice");
+    // create SDL renderer
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
+    check_sdl_error(renderer, "SDL_Create_Renderer");
+    SDL_SetRenderVSync(renderer, 1);
 
-    // claim window
-    check_sdl_error(
-        SDL_ClaimWindowForGPUDevice(device, window)
-        , "SDL_ClaimWindowForGPUDevice"
-    );
 
-    // ImGui setup
+    // ImGui Initialization
     
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-
-    // backends
+    // ImGui Backends
+    ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+    ImGui_ImplSDLRenderer3_Init(renderer);
 
 
     // main loop
@@ -74,67 +69,44 @@ int main()
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            std::cout << "event (" << event_counter++ << ")\n";
+            ImGui_ImplSDL3_ProcessEvent(&event);
             if (event.type == SDL_EVENT_QUIT) done = true;
-            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) std::cout << "md\n";
         }
-        std::cout << "done polling events, starting render\n";
 
-        // window
+        // ImGui frame
+
+        ImGui_ImplSDLRenderer3_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
+        ImGui::NewFrame();
+        {
+            static unsigned int count {};
+            ImGui::Begin("Test Window");
+        
+            ImGui::Text("Hello, World!");
+            if (ImGui::Button("Click me!")) ++count;
+            ImGui::Text("Counter: %d", count);
+            
+            ImGui::End();
+        }
         
 
         // render
 
-        SDL_GPUCommandBuffer* cmdbuf = SDL_AcquireGPUCommandBuffer(device);
-        check_sdl_error(cmdbuf, "SDL_AcquireGPUCommandBuffer");
-
-        SDL_GPUTexture* swapchain_texture = NULL;
-        check_sdl_error(
-            SDL_WaitAndAcquireGPUSwapchainTexture(
-                cmdbuf
-                , window
-                , &swapchain_texture
-                , NULL
-                , NULL
-            )
-            , "SDL_WaitAndAcquireGPUSwapchainTexture"
-        );
-
-        if (swapchain_texture != NULL)
-        {
-            SDL_GPUColorTargetInfo colour_target_info {};
-            colour_target_info.texture = swapchain_texture;
-            colour_target_info.clear_color = (SDL_FColor){ 0.3f, 0.6f, 0.5f, 1.0f };
-            colour_target_info.load_op = SDL_GPU_LOADOP_CLEAR;
-            colour_target_info.store_op = SDL_GPU_STOREOP_STORE;
-            colour_target_info.mip_level = 0;
-            colour_target_info.layer_or_depth_plane = 0;
-            colour_target_info.cycle = false;
-
-            std::cout << "starting pass\n";
-
-            SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(
-                cmdbuf
-                , &colour_target_info
-                , 1
-                , NULL
-            );
-            std::cout << "ending pass\n";
-            SDL_EndGPURenderPass(render_pass);
-            std::cout << "render pass null: " << (render_pass == NULL) << "\n";
-        }
-        std::cout << "submitting command buffer\n";
-        bool ok = SDL_SubmitGPUCommandBuffer(cmdbuf);
-        check_sdl_error(ok, "SDL_SubmitGPUCommandBuffer");
-        std::cout << "done with render\n";
+        ImGui::Render();
+        SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+        SDL_SetRenderDrawColorFloat(renderer, 1.0f, 1.0f, 1.0f, 1.0f);
+        SDL_RenderClear(renderer);
+        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+        SDL_RenderPresent(renderer);
     }
 
     // cleanup
-    SDL_WaitForGPUIdle(device);
 
+    ImGui_ImplSDLRenderer3_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
 
-    SDL_ReleaseWindowFromGPUDevice(device, window);
-    SDL_DestroyGPUDevice(device);
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 
