@@ -3,37 +3,142 @@
 #include <imgui_impl_sdlgpu3.h>
 #include <string>
 #include <SDL3/SDL.h>
+#include <iostream>
+#include <othello_config.hpp>
+
+// exit prematurely if sdl call returns value that casts to flase (0)
+void check_sdl_error(bool success, std::string sdl_func)
+{
+    if (!success)
+    {
+        throw std::runtime_error("Error in " + sdl_func + "(): " + std::string(SDL_GetError()));
+    }
+}
+
 
 
 
 
 int main()
 {
-    // SDL Window stuff
-    bool done;
-    SDL_Init(SDL_INIT_VIDEO);
+    // setup SDL
+    bool sdl_init_success { SDL_Init(SDL_INIT_VIDEO) };
+    check_sdl_error(sdl_init_success, "SDL_Init");
 
-    const std::string WINDOW_TITLE = "";
-    const int WINDOW_WIDTH { 1080 };
-    const int WINDOW_HEIGHT { 720 };
-    const SDL_WindowFlags WINDOW_FLAGS {}; 
-    SDL_Window *window = SDL_CreateWindow(WINDOW_TITLE.c_str(), WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_FLAGS);
 
-    if (window == NULL)
-    {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not create window: %s\n", SDL_GetError());
-    }
+    // create SDL window
+    float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+    std::string title {"Othello v " + std::to_string(Othello_VERSION_MAJOR) + "." + std::to_string(Othello_VERSION_MINOR)};
+    int width {(int)(800 * main_scale)};
+    int height {(int)(600 * main_scale)};
+    SDL_Window* window = SDL_CreateWindow(
+        title.c_str()
+        , width
+        , height
+        , SDL_WINDOW_RESIZABLE
+    );
+    check_sdl_error(window, "SDL_CreateWindow");
+    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
+
+    // create GPU device
+    SDL_GPUDevice* device = SDL_CreateGPUDevice(
+        SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL | SDL_GPU_SHADERFORMAT_METALLIB
+        , true
+        , NULL
+    );
+    check_sdl_error(device, "SDL_CreateGPUDevice");
+
+    // claim window
+    check_sdl_error(
+        SDL_ClaimWindowForGPUDevice(device, window)
+        , "SDL_ClaimWindowForGPUDevice"
+    );
+
+    // ImGui setup
+    
+
+
+    // backends
+
+
+    // main loop
+
+
+    bool done = false;
+    unsigned int event_counter {};
+    unsigned int loop_counter {};
     while (!done)
     {
+        std::cout << "loop (" << loop_counter++ << ")\n";
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
+            std::cout << "event (" << event_counter++ << ")\n";
             if (event.type == SDL_EVENT_QUIT) done = true;
+            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) std::cout << "md\n";
         }
+        std::cout << "done polling events, starting render\n";
+
+        // window
+        
+
+        // render
+
+        SDL_GPUCommandBuffer* cmdbuf = SDL_AcquireGPUCommandBuffer(device);
+        check_sdl_error(cmdbuf, "SDL_AcquireGPUCommandBuffer");
+
+        SDL_GPUTexture* swapchain_texture = NULL;
+        check_sdl_error(
+            SDL_WaitAndAcquireGPUSwapchainTexture(
+                cmdbuf
+                , window
+                , &swapchain_texture
+                , NULL
+                , NULL
+            )
+            , "SDL_WaitAndAcquireGPUSwapchainTexture"
+        );
+
+        if (swapchain_texture != NULL)
+        {
+            SDL_GPUColorTargetInfo colour_target_info {};
+            colour_target_info.texture = swapchain_texture;
+            colour_target_info.clear_color = (SDL_FColor){ 0.3f, 0.6f, 0.5f, 1.0f };
+            colour_target_info.load_op = SDL_GPU_LOADOP_CLEAR;
+            colour_target_info.store_op = SDL_GPU_STOREOP_STORE;
+            colour_target_info.mip_level = 0;
+            colour_target_info.layer_or_depth_plane = 0;
+            colour_target_info.cycle = false;
+
+            std::cout << "starting pass\n";
+
+            SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(
+                cmdbuf
+                , &colour_target_info
+                , 1
+                , NULL
+            );
+            std::cout << "ending pass\n";
+            SDL_EndGPURenderPass(render_pass);
+            std::cout << "render pass null: " << (render_pass == NULL) << "\n";
+        }
+        std::cout << "submitting command buffer\n";
+        bool ok = SDL_SubmitGPUCommandBuffer(cmdbuf);
+        check_sdl_error(ok, "SDL_SubmitGPUCommandBuffer");
+        std::cout << "done with render\n";
     }
 
+    // cleanup
+    SDL_WaitForGPUIdle(device);
+
+
+    SDL_ReleaseWindowFromGPUDevice(device, window);
+    SDL_DestroyGPUDevice(device);
     SDL_DestroyWindow(window);
     SDL_Quit();
+
+
+
     return 0;
 }
