@@ -1,8 +1,16 @@
-#include <othello/app/display/GuiTrainDisplay.hpp>
+#include <othello/app/display/Display.hpp>
+#include <othello/app/display/frontend/TrainDisplayGui.hpp>
+#include <othello/app/display/backend/Sdl3RendererDisplay.hpp>
 
 
 int main()
 {
-    GuiTrainDisplay display(1);
-    while (!display.is_done()) display.render();
+    // create display
+    Display<SDL3RendererBackend, TrainDisplayGui> display {};
+
+    // create training threads
+
+    // start display
+    display.run();
+    return 0;
 }

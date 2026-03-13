@@ -49,7 +49,8 @@ if(BUILD_EXECUTABLE)
         extern/imgui/imgui_widgets.cpp
         extern/imgui/imgui.cpp
         src/app/main.cpp
-        src/app/display/GuiTrainDisplay.cpp
+        src/app/display/backend/Sdl3RendererDisplay.cpp
+        src/app/display/frontend/TrainDisplayGui.cpp
     )
    target_link_libraries(
        Othello

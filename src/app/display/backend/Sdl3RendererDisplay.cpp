@@ -1,25 +1,14 @@
-#include <othello/app/display/GuiTrainDisplay.hpp>
+#include <othello/app/display/backend/Sdl3RendererDisplay.hpp>
 
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
-
-#include <SDL3/SDL.h>
-#include <stdexcept>
+#include <othello/app/display/backend/SdlError.hpp>
 #include <othello_config.hpp>
 
 
-// exit prematurely if sdl call returns value that casts to flase (0)
-void check_sdl_error(bool success, std::string sdl_func)
+SDL3RendererBackend::SDL3RendererBackend()
 {
-    if (!success)
-    {
-        throw std::runtime_error("Error in " + sdl_func + "(): " + std::string(SDL_GetError()));
-    }
-}
-
-GuiTrainDisplay::GuiTrainDisplay(size_t num_boards)
-{    
     // setup SDL
     bool sdl_init_success { SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) };
     check_sdl_error(sdl_init_success, "SDL_Init");
@@ -45,7 +34,6 @@ GuiTrainDisplay::GuiTrainDisplay(size_t num_boards)
     renderer_ = SDL_CreateRenderer(window_, NULL);
     check_sdl_error(renderer_, "SDL_Create_Renderer");
     SDL_SetRenderVSync(renderer_, 1);
-
     // ImGui Initialization
     
     IMGUI_CHECKVERSION();
@@ -59,47 +47,8 @@ GuiTrainDisplay::GuiTrainDisplay(size_t num_boards)
     ImGui_ImplSDLRenderer3_Init(renderer_);
 }
 
-void GuiTrainDisplay::render()
+SDL3RendererBackend::~SDL3RendererBackend()
 {
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
-    {
-        ImGui_ImplSDL3_ProcessEvent(&event);
-        if (event.type == SDL_EVENT_QUIT) done_ = true;
-    }
-
-    // ImGui frame
-
-    ImGui_ImplSDLRenderer3_NewFrame();
-    ImGui_ImplSDL3_NewFrame();
-    ImGui::NewFrame();
-    {
-        static unsigned int count {};
-        ImGui::Begin("Test Window");
-    
-        ImGui::Text("Hello, World!");
-        if (ImGui::Button("Click me!")) ++count;
-        ImGui::Text("Counter: %d", count);
-        
-        ImGui::End();
-    }
-    
-
-    // render
-
-    ImGui::Render();
-    SDL_SetRenderScale(renderer_, io_->DisplayFramebufferScale.x, io_->DisplayFramebufferScale.y);
-    SDL_SetRenderDrawColorFloat(renderer_, 1.0f, 1.0f, 1.0f, 1.0f);
-    SDL_RenderClear(renderer_);
-    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
-    SDL_RenderPresent(renderer_);
- 
-}
-
-GuiTrainDisplay::~GuiTrainDisplay()
-{
-    // cleanup
-
     ImGui_ImplSDLRenderer3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
@@ -107,4 +56,33 @@ GuiTrainDisplay::~GuiTrainDisplay()
     SDL_DestroyRenderer(renderer_);
     SDL_DestroyWindow(window_);
     SDL_Quit();
+}
+
+void SDL3RendererBackend::processEvents()
+{
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+    {
+        ImGui_ImplSDL3_ProcessEvent(&event);
+        if (event.type == SDL_EVENT_QUIT) done_ = true;
+    }
+}
+
+void SDL3RendererBackend::renderPreFrame()
+{
+    ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+}
+void SDL3RendererBackend::renderPostFrame()
+{
+    ImGui::Render();
+    SDL_SetRenderScale(renderer_, io_->DisplayFramebufferScale.x, io_->DisplayFramebufferScale.y);
+    SDL_SetRenderDrawColorFloat(renderer_, 1.0f, 1.0f, 1.0f, 1.0f);
+    SDL_RenderClear(renderer_);
+    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
+    SDL_RenderPresent(renderer_);
+}
+bool SDL3RendererBackend::isDone()
+{
+    return done_;
 }

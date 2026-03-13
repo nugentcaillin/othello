@@ -1,0 +1,16 @@
+@startuml
+class ExperimentGenerator
+class PerformanceSystem
+class Critic
+class Generalizer
+class Hypothesis
+class Model
+
+PerformanceSystem<--ExperimentGenerator:Generates Starting state for
+Critic<--PerformanceSystem:Plays Game For
+Generalizer<--Critic: Creates Training Data
+ExperimentGenerator<--Generalizer: Gives Hypothesis
+Model<--Hypothesis
+ExperimentGenerator<--Hypothesis
+PerformanceSystem<--Model
+@enduml
