@@ -16,6 +16,10 @@ public:
     void renderPostFrame();
     void processEvents();
     bool isDone();
+    void setWindow(SDL_Window* window);
+    SDL_Window* getWindow();
+    ImGuiIO* getIO();
+    void setIO(ImGuiIO* io);
 
 private:
     SDL_Renderer* renderer_;
