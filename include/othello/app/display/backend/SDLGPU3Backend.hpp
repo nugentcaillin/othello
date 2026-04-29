@@ -1,15 +1,14 @@
-#ifndef OTHELLO_SDL3_RENDER_BACKEND_H
-#define OTHELLO_SDL3_RENDER_BACKEND_H
+#ifndef OTHELLO_DISPLAY_SDLGPU3_BACKEND_H
+#define OTHELLO_DISPLAY_SDLGPU3_BACKEND_H
 
-#include <imgui.h>
 #include <SDL3/SDL.h>
+#include <imgui.h>
 #include <othello/app/display/backend/DisplayBackend.hpp>
 
-
-class SDL3RendererBackend {
+class SDLGPU3Backend {
 public:
-    SDL3RendererBackend();
-    ~SDL3RendererBackend();
+    SDLGPU3Backend();
+    ~SDLGPU3Backend();
     void renderPreFrame();
     void renderPostFrame();
     void processEvents();
@@ -18,14 +17,16 @@ public:
     SDL_Window* getWindow();
     ImGuiIO* getIO();
     void setIO(ImGuiIO* io);
+    SDL_GPUDevice* getGpuDevice();
+    void setGpuDevice(SDL_GPUDevice* device);
 
 private:
-    SDL_Renderer* renderer_;
     SDL_Window* window_;
     bool done_;
     ImGuiIO* io_;
+    SDL_GPUDevice* gpu_device_;
 };
 
+static_assert(ImGuiDisplayBackend<SDLGPU3Backend>);
 
-static_assert(ImGuiDisplayBackend<SDL3RendererBackend>);
-#endif // OTHELLO_SDL3_RENDER_BACKEND_H
+#endif // OTHELLO_DISPLAY_SDLGPU3_BACKEND_H

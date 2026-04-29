@@ -43,13 +43,16 @@ if(BUILD_EXECUTABLE)
     add_executable(Othello 
         extern/imgui/backends/imgui_impl_sdl3.cpp
         extern/imgui/backends/imgui_impl_sdlrenderer3.cpp
+        extern/imgui/backends/imgui_impl_sdlgpu3.cpp
         extern/imgui/imgui_demo.cpp
         extern/imgui/imgui_draw.cpp
         extern/imgui/imgui_tables.cpp
         extern/imgui/imgui_widgets.cpp
         extern/imgui/imgui.cpp
         src/app/main.cpp
+        # extern/imgui/examples/example_sdl3_sdlgpu3/main.cpp
         src/app/display/backend/Sdl3RendererDisplay.cpp
+        src/app/display/backend/SDLGPU3Backend.cpp
         src/app/display/frontend/TrainDisplayGui.cpp
     )
    target_link_libraries(
