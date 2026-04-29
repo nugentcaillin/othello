@@ -84,8 +84,8 @@ if(BUILD_TESTING)
     
     enable_testing()
 
-    add_executable(hello_test
-        tests/core/hello.cpp
+    add_executable(all_tests
+        tests/main.cpp
     )
     target_link_libraries(
         hello_test
