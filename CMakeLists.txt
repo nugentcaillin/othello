@@ -85,13 +85,13 @@ if(BUILD_TESTING)
     enable_testing()
 
     add_executable(all_tests
-        tests/main.cpp
+	tests/experiment/generator/random_moves_generator.cpp
     )
     target_link_libraries(
-        hello_test
+        all_tests
         ${TESTING_LIBRARIES}
         GTest::gtest_main
     )
     include(GoogleTest)
-    gtest_discover_tests(hello_test)
+    gtest_discover_tests(all_tests)
 endif()

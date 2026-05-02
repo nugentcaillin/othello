@@ -12,11 +12,13 @@ namespace experiment
 {
 
 template
-<typename State>
+<typename GameState>
 struct Game {
 public:
-	virtual std::vector<State> get_legal_moves() = 0;
-	virtual bool play_move(State next_legal_move) = 0;
+	using State = GameState;
+	virtual std::vector<State> get_legal_states() = 0;
+	virtual std::vector<State> get_played_states() = 0;
+	virtual bool play_state(State next_legal_state) = 0;
 	virtual bool is_winning(State& state, int player) = 0;
 	virtual ~Game() {}
 };
@@ -31,34 +33,34 @@ struct TrainingExample {
 template
 <typename State>
 class Hypothesis {
+public:
 	// evaluate a game state using current approximation
 	virtual double get_value(State& state) = 0;
 	virtual ~Hypothesis() {}
 };
 
-
 template
-<typename State>
+<typename Game>
 class Generator {
 public:
 	// generate a starting state using hypothesis
-	virtual Game<State> get_initial(Hypothesis<State>& hypothesis) = 0;
+	virtual Game get_initial(Hypothesis<typename Game::State>& hypothesis) = 0;
 	virtual ~Generator() {}
 };
 
 template
-<typename State>
+<typename Game>
 class Performer {
 	// play a complete game from an initial state
-	virtual void play_game(Hypothesis<State>& hypothesis, Game<State>& initial_state);
+	virtual void play_game(Hypothesis<typename Game::State>& hypothesis, Game& game);
 	virtual ~Performer() {}
 };
 
 template
-<typename State>
+<typename Game>
 class Critic {
 	// estimate vtrain using current hypothesis's evaluation of next state where it is player's turn
-	virtual std::vector<TrainingExample<State>> get_training_examples(Game<State>& finished_game, Hypothesis<State>& hypothesis) = 0;	
+	virtual std::vector<TrainingExample<typename Game::State>> get_training_examples(Game& finished_game, Hypothesis<typename Game::State>& hypothesis) = 0;	
 	virtual ~Critic() {}
 };
 
@@ -71,14 +73,14 @@ class Generalizer {
 };
 
 template
-<typename State>
+<typename Game>
 class Experiment {
 private:
-	Hypothesis<State> hypothesis_;
-	Generator<State> generator_;
-	Performer<State> performer_;
-	Critic<State> critic_;
-	Generalizer<State> generalizer_;
+	Hypothesis<typename Game::State> hypothesis_;
+	Generator<Game> generator_;
+	Performer<Game> performer_;
+	Critic<Game> critic_;
+	Generalizer<typename Game::State> generalizer_;
 public:
 	Experiment();
 	// perform one loop of generate -> perform -> critique -> update
