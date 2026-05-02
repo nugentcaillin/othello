@@ -65,8 +65,8 @@ public:
 
 class RandomMovesGeneratorTest : public testing::Test {
 protected:
-	static const size_t SELECTED_MOVES = 4;
-	static const size_t LESS_SELECTED = SELECTED_MOVES - 1;
+	inline static const size_t SELECTED_MOVES = 4;
+	inline static const size_t LESS_SELECTED = SELECTED_MOVES - 1;
 	RandomMovesGenerator<MockGame<SELECTED_MOVES>, SELECTED_MOVES> enough;
 	RandomMovesGenerator<MockGame<LESS_SELECTED>, SELECTED_MOVES> not_enough;
 	MockHypothesis<MockState> hypo {};
