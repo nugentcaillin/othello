@@ -1,9 +1,3 @@
-/**
- * Provides declaration for random move generator,
- * a generator that ignores given hypothesis and selects
- * N random moves from possible moves, or max available,
- * whichever is lesser
- * */
 #ifndef EXPERIMENT_RANDOM_MOVES_GENERATOR_H
 #define EXPERIMENT_RANDOM_MOVES_GENERATOR_H
 
@@ -14,7 +8,14 @@
 namespace experiment
 {
 
-
+/**
+ * @brief Perform random moves to get initial state
+ *
+ * attempts to perform N random moves if possible
+ *
+ * @tparam Game the type of game to generate initial state for
+ * @tparam N the number of random moves to attempt to make
+ */
 template
 <typename Game, size_t N>
 class RandomMovesGenerator : public Generator<Game> {
@@ -22,7 +23,15 @@ private:
 	std::mt19937 gen_;
 public:
 	using typename Generator<Game>::State;
-	// get a game that is the result of playing up to N random moves
+	/**
+	 * @brief attempt to play N random moves on blank game
+	 *
+	 * generate blank game, then play up to N random moves or
+	 * maximum possible, whichever is lesser
+	 * 
+	 * @param hypothesis the current approximation of reward for a state
+	 * @returns a game with initial state selected through random moves
+	 */
 	Game get_initial(Hypothesis<State>& hypothesis) override;
 	RandomMovesGenerator();
 };
