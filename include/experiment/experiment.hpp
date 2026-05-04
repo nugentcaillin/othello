@@ -146,9 +146,8 @@ class Critic {
 	/**
 	 * @brief get a series of training examples from a finished game
 	 * @param finished_game the finished game
-	 * @param hypothesis the current hypothesis
 	 */
-	virtual std::vector<TrainingExample<State>> get_training_examples(Game& finished_game, Hypothesis<State>& hypothesis) = 0;	
+	virtual std::vector<TrainingExample<State>> get_training_examples(Game& finished_game) = 0;	
 	virtual ~Critic() {}
 };
 
