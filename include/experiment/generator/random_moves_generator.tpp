@@ -9,12 +9,12 @@ namespace experiment
 
 template
 <typename Game, size_t N>
-Game RandomMovesGenerator<Game, N>::get_initial(Hypothesis<typename Game::State>& hypothesis) {
+Game RandomMovesGenerator<Game, N>::get_initial(Hypothesis<State>& hypothesis) {
 	Game initial {};
 
 	// if available moves remaining and not picked enough already, pick random one
 	for (size_t i = 0; i < N; ++i) {
-		std::vector<typename Game::State> possible_states = initial.get_legal_states();
+		std::vector<State> possible_states = initial.get_legal_states();
 		if (possible_states.size() == 0) break;
 		
 		std::uniform_int_distribution<size_t> dist(0, possible_states.size() - 1);

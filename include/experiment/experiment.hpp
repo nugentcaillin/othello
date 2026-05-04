@@ -43,24 +43,27 @@ template
 <typename Game>
 class Generator {
 public:
+	using State = typename Game::State;
 	// generate a starting state using hypothesis
-	virtual Game get_initial(Hypothesis<typename Game::State>& hypothesis) = 0;
+	virtual Game get_initial(Hypothesis<State>& hypothesis) = 0;
 	virtual ~Generator() {}
 };
 
 template
 <typename Game>
 class Performer {
+	using State = typename Game::State;
 	// play a complete game from an initial state
-	virtual void play_game(Hypothesis<typename Game::State>& hypothesis, Game& game);
+	virtual void play_game(Hypothesis<State>& hypothesis, Game& game);
 	virtual ~Performer() {}
 };
 
 template
 <typename Game>
 class Critic {
+	using State = typename Game::State;
 	// estimate vtrain using current hypothesis's evaluation of next state where it is player's turn
-	virtual std::vector<TrainingExample<typename Game::State>> get_training_examples(Game& finished_game, Hypothesis<typename Game::State>& hypothesis) = 0;	
+	virtual std::vector<TrainingExample<State>> get_training_examples(Game& finished_game, Hypothesis<State>& hypothesis) = 0;	
 	virtual ~Critic() {}
 };
 
@@ -76,11 +79,12 @@ template
 <typename Game>
 class Experiment {
 private:
-	Hypothesis<typename Game::State> hypothesis_;
+	using State = typename Game::State;
+	Hypothesis<State> hypothesis_;
 	Generator<Game> generator_;
 	Performer<Game> performer_;
 	Critic<Game> critic_;
-	Generalizer<typename Game::State> generalizer_;
+	Generalizer<State> generalizer_;
 public:
 	Experiment();
 	// perform one loop of generate -> perform -> critique -> update

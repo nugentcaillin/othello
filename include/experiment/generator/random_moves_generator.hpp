@@ -21,8 +21,9 @@ class RandomMovesGenerator : public Generator<Game> {
 private:
 	std::mt19937 gen_;
 public:
+	using typename Generator<Game>::State;
 	// get a game that is the result of playing up to N random moves
-	Game get_initial(Hypothesis<typename Game::State>& hypothesis) override;
+	Game get_initial(Hypothesis<State>& hypothesis) override;
 	RandomMovesGenerator();
 };
 
