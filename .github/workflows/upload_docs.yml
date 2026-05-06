@@ -8,4 +8,4 @@ jobs:
         id: docs
         uses: nugentcaillin/actions/doxygen-gen@main
       - name: echo ID
-        run: echo "ARTIFACT ID: ${{steps.docs.output.artifact-id}}"
+        run: echo "ARTIFACT ID: ${{steps.docs.outputs.artifact-id}}"
