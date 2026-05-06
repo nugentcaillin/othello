@@ -7,5 +7,10 @@ jobs:
       - name: gen docs
         id: docs
         uses: nugentcaillin/actions/doxygen-gen@main
-      - name: echo ID
-        run: echo "ARTIFACT ID is ${{ steps.docs.outputs.artifact-id }}"
+      - name: request docs page update
+        uses: peter-evans/repository-dispatch@v4
+        with:
+          token: ${{ secrets.PAT }}
+          repository: nugentcaillin/homelab-orchestration
+          event-type: docs-update
+          client-payload: '{"artifact-id": "${{ steps.docs.outputs.artifact-id }}", "folder": "othello"}'
