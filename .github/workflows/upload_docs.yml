@@ -4,4 +4,8 @@ jobs:
   upload_docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: nugentcaillin/actions/doxygen-gen@main
+      - name: gen docs
+        id: docs
+        uses: nugentcaillin/actions/doxygen-gen@main
+      - name: echo ID
+        run: echo "ARTIFACT ID: ${{docs.artifact-id}}"
