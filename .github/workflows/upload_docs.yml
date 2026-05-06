@@ -12,5 +12,5 @@ jobs:
         with:
           token: ${{ secrets.PAT }}
           repository: nugentcaillin/homelab-orchestration
-          event-type: docs-update
-          client-payload: '{"artifact-id": "${{ steps.docs.outputs.artifact-id }}", "folder": "othello"}'
+          event-type: docs-update-othello
+          client-payload: '{"artifact_id": "${{ steps.docs.outputs.artifact-id }}"}'
