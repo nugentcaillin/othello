@@ -187,12 +187,14 @@ public:
 	 *
 	 * pick one state from set of possible next states
 	 *
+	 * @pre game has a next state available
+	 *
 	 * @param game the current game
 	 * @returns the chosen next state of the game
 	 */
 	using State = typename Game::State;
-	State choose_next_move(Game& game);
-} 
+	virtual State choose_next_move(Game& game) = 0;
+}; 
 
 /**
  * @brief conduct an unsupervised learning experiment
