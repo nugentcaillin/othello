@@ -170,6 +170,30 @@ class Generalizer {
 	virtual ~Generalizer() {}
 };
 
+
+/**
+ * @brief a player that can play a game
+ *
+ * Picks a next move from set of possible moves at junction of game
+ *
+ * @tparam Game the type of game being played
+ */
+template
+<typename Game>
+class Player {
+public:
+	/**
+	 * @brief pick next move
+	 *
+	 * pick one state from set of possible next states
+	 *
+	 * @param game the current game
+	 * @returns the chosen next state of the game
+	 */
+	using State = typename Game::State;
+	State choose_next_move(Game& game);
+} 
+
 /**
  * @brief conduct an unsupervised learning experiment
  * 
