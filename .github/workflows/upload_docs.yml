@@ -1,5 +1,5 @@
 name: upload docs
-on: workflow_dispatch
+on: [push, workflow_dispatch]
 jobs:
   upload_docs:
     runs-on: ubuntu-latest
