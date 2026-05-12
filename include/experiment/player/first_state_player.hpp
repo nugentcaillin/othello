@@ -10,7 +10,7 @@ template
 <typename Game>
 class FirstStatePlayer : public Player<Game> {
 public:
-	using Player<Game>::State;
+	using typename Player<Game>::State;
 	/**
 	 * @brief select the first move available in list
 	 * @pre game has a next move available
