@@ -24,7 +24,7 @@ public:
 	
 	void play_game(Hypothesis<State>& hypothesis, Game& game) override;
 	SelfPlayPerformer(Player player);
-	SelfPlayPerformer() = delete;
+	SelfPlayPerformer();
 };
 
 

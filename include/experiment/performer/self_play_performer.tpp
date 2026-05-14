@@ -9,7 +9,7 @@ template
 void SelfPlayPerformer<Game, Player, MAX_ITER>::play_game(
 		Hypothesis<State>& hypothesis, 
 		Game& game) {
-	while (should_play()) {
+	while (should_play(game)) {
 		State next = player_.choose_next_move(game);
 		game.play_state(next);
 	}
@@ -22,14 +22,22 @@ SelfPlayPerformer<Game, Player, MAX_ITER>::SelfPlayPerformer(Player player)
 {}
 
 template
+<typename Game, typename Player, size_t MAX_ITER>	
+SelfPlayPerformer<Game, Player, MAX_ITER>::SelfPlayPerformer()
+: player_ {}
+{}
+
+template
 <typename Game, typename Player, size_t MAX_ITER>
 bool SelfPlayPerformer<Game, Player, MAX_ITER>::should_play(Game& game) {
-	return game.get_played_states.size() < MAX_ITER && 
+	return game.get_played_states().size() < MAX_ITER && 
 		   game.get_legal_states().size() > 0;
 }
 
-// partially specialized class template to allow for below
-// SelfPlayPerformer::should_play partial specialization
+
+// partial specialization for case with unlimited moves - need to
+// duplicate class since function partial specializations aren't allowed 
+
 template
 <typename Game, typename Player>
 class SelfPlayPerformer<Game, Player, 0> : public Performer<Game> {
@@ -41,13 +49,37 @@ public:
 	
 	void play_game(Hypothesis<State>& hypothesis, Game& game) override;
 	SelfPlayPerformer(Player player);
-	SelfPlayPerformer() = delete;
+	SelfPlayPerformer();
 };
 
 template
 <typename Game, typename Player>
 bool SelfPlayPerformer<Game, Player, 0>::should_play(Game& game) {
 	return game.get_legal_states().size() > 0;
+}
+
+
+template
+<typename Game, typename Player>	
+SelfPlayPerformer<Game, Player, 0>::SelfPlayPerformer(Player player)
+: player_ { player }
+{}
+
+template
+<typename Game, typename Player>	
+SelfPlayPerformer<Game, Player, 0>::SelfPlayPerformer()
+: player_ {}
+{}
+
+template
+<typename Game, typename Player>	
+void SelfPlayPerformer<Game, Player, 0>::play_game(
+		Hypothesis<State>& hypothesis, 
+		Game& game) {
+	while (should_play(game)) {
+		State next = player_.choose_next_move(game);
+		game.play_state(next);
+	}
 }
 
 

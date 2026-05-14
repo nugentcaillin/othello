@@ -125,13 +125,14 @@ public:
 template
 <typename Game>
 class Performer {
+public:
 	using State = typename Game::State;
 	/**
 	 * @brief play a game out fully
 	 * @param hypothesis the current approximation of reward 
 	 * @param game the game to play out
 	 */
-	virtual void play_game(Hypothesis<State>& hypothesis, Game& game);
+	virtual void play_game(Hypothesis<State>& hypothesis, Game& game) = 0;
 	virtual ~Performer() {}
 };
 

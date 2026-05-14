@@ -87,6 +87,7 @@ if(BUILD_TESTING)
     add_executable(all_tests
 	tests/experiment/generator/random_moves_generator.cpp
 	tests/experiment/player/first_state_player.cpp
+	tests/experiment/performer/self_play_performer.cpp
     )
 	
 	target_compile_options(all_tests PRIVATE -Wall -Wpedantic -Werror -std=c++20)
